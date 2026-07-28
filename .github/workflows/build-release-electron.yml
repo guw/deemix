@@ -6,7 +6,7 @@ on:
       - deemix-gui@*
   pull_request:
     branches:
-      - main
+      - "main*"
     paths:
       - packages/gui/*
       - .github/workflows/build-release-electron.yml

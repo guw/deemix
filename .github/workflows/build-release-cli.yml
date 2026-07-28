@@ -6,7 +6,7 @@ on:
       - deemix-cli@*
   pull_request:
     branches:
-      - main
+      - "main*"
     paths:
       - packages/cli/CHANGELOG.md
       - .github/workflows/build-release-cli.yml
