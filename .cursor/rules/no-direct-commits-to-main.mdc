@@ -1,0 +1,17 @@
+---
+description: Never commit or push directly to any branch whose name starts with main
+alwaysApply: true
+---
+
+# No direct commits to main* branches
+
+Never commit directly to any branch starting with `main` (including `main` and `main-guw`).
+
+Required workflow:
+
+1. Create a feature branch from the default base (`main-guw`)
+2. Commit on that feature branch only
+3. Push the feature branch to `origin`
+4. Open a PR against `guw/deemix` with `--base main-guw`
+
+Also never push commits directly to `main` / `main-guw` / other `main*` branches.
