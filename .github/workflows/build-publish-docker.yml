@@ -6,7 +6,7 @@ on:
       - deemix-webui@*
   pull_request:
     branches:
-      - main
+      - "main*"
     paths:
       - .github/workflows/build-publish-docker.yml
       - Dockerfile
