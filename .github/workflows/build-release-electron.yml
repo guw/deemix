@@ -79,7 +79,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: deemix-gui-${{ matrix.os }}
-          path: packages/gui/out
+          path: |
+            packages/gui/out/**/Deemix-*.zip
+            packages/gui/out/**/deemix_*.deb
 
   create-release:
     name: Create GitHub release and attach artifacts
