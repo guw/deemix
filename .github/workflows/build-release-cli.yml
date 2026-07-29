@@ -15,6 +15,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 env:
   HUSKY: 0
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -23,9 +26,6 @@ env:
 jobs:
   build-release-cli:
     runs-on: macos-latest
-
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v7

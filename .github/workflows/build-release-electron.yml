@@ -15,6 +15,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 env:
   HUSKY: 0
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -23,9 +26,6 @@ env:
 jobs:
   build-release-electron:
     runs-on: ${{ matrix.os }}
-
-    permissions:
-      contents: write
 
     strategy:
       fail-fast: false
