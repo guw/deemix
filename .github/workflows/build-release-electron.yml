@@ -69,5 +69,5 @@ jobs:
             packages/gui/out/make/deb/**/*.deb
           draft: true
           prerelease: true
-          title: Deemix GUI ${{ github.ref_name }}
+          title: Deemix GUI ${{ replace(github.ref_name, 'deemix-gui@', '') }}
           generate_release_notes: true
