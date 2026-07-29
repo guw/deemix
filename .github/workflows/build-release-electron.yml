@@ -70,10 +70,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Rebuild native modules
-        run: pnpm --filter deemix-gui run electron-rebuild
+        run: pnpm --filter=deemix-gui exec pnpm electron-rebuild
 
       - name: Run the make script (packaging)
-        run: pnpm --filter deemix-gui run make
+        run: pnpm make
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
