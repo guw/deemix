@@ -8,7 +8,7 @@ on:
     branches:
       - "main*"
     paths:
-      - packages/gui/*
+      - packages/gui/**
       - .github/workflows/build-release-electron.yml
 
 concurrency:
@@ -24,21 +24,34 @@ env:
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
 jobs:
-  build-release-electron:
+  build:
+    name: Build (matrix)
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-node-24
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -53,20 +66,40 @@ jobs:
       - name: Set PYTHON env var
         run: echo "PYTHON=$(which python)" >> $GITHUB_ENV
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter=deemix-gui exec pnpm electron-rebuild
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - run: pnpm make
+      - name: Rebuild native modules
+        run: pnpm --filter deemix-gui run electron-rebuild
 
-      - name: Upload Artifacts
-        uses: softprops/action-gh-release@v3
-        if: github.ref_type == 'tag'
+      - name: Run the make script (packaging)
+        run: pnpm --filter deemix-gui run make
+
+      - name: Upload built artifacts
+        uses: actions/upload-artifact@v4
         with:
-          files: |
-            packages/gui/out/**/Deemix.exe
-            packages/gui/out/**/Deemix*Setup.exe
-            packages/gui/out/make/zip/**/*.zip
-            packages/gui/out/make/deb/**/*.deb
+          name: deemix-gui-${{ matrix.os }}
+          path: packages/gui/out
+
+  create-release:
+    name: Create GitHub release and attach artifacts
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    steps:
+      - name: Download artifacts from matrix jobs
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts (debug)
+        run: ls -R artifacts || true
+
+      - name: Create draft release and upload artifacts
+        uses: softprops/action-gh-release@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: artifacts/**/*
           draft: true
           prerelease: true
           title: Deemix GUI ${{ replace(github.ref_name, 'deemix-gui@', '') }}
